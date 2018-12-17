@@ -2,3 +2,4 @@
 db.sqlit3
 *.pyc
 venv/
+*/migrations/
