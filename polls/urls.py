@@ -6,7 +6,7 @@ urlpatterns = [
     # 首页 http://ip:port/polls/
     path('', views.index, name='index'),
     # 首页 问题列表 /polls/index/
-    path('index/', views.index, name='index'),
+    # path('index/', views.index, name='index'),
     # 问题详情页 ex: /polls/1/
     path('<int:question_id>/', views.detail, name='detail'),
     # 投票结果页  /polls/2/results/
