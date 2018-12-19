@@ -1,7 +1,9 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.template import loader
 from django.shortcuts import render
+from django.urls import reverse    # 类似前端模板语言 url 函数
+from django.views import generic    # 从数据库取数据前台渲染列表的操作比较简单重复，django封装了这个过程提供统一的模板
 from .models import Question, Choice
 
 # Create your views here.
@@ -70,8 +72,9 @@ def detail(request, question_id):
     # 写法3
     # question = get_object_or_404(Question, id=question_id)
     # print(question)
-    # return render(request, 'polls/detail.html', {'question': question})
-    return render(request, 'polls/detail.html', context)
+    #
+    # return render(request, 'polls/detail.html', {'context': question})    # 误写成这样导致前端question.id取不到导致{% url  构造路由出错。
+    return render(request, 'polls/detail.html', {'question': question})
 
 
 
@@ -79,9 +82,40 @@ def results(request, question_id):
     """
     投票结果
     """
-    pass
+    question = Question.objects.get(id=question_id)
+    return render(request, 'polls/results.html', {'question':question})
 
 def vote(request, question_id):
     """
     投票
     """
+    try:
+        question = Question.objects.get(id=question_id)
+        choices = question.choice_set.all()
+        choice_id = request.POST['choice']
+        selected_choice = question.choice_set.get(id=choice_id)
+    except Question.DoesNotExist as e:
+        error_message = '问题内容不存在，检查问题id'
+    except Choice.DoesNotExist as e:
+        error_message = '问题对应的选项不存在'
+        return render(request, 'polls/detail.html', context={
+            'question': question,
+            'error_message': error_message
+        })
+    else:
+        # sql  update choice set votes=votes+1 where id=2
+        selected_choice.votes += 1
+        # commit;
+        selected_choice.save()
+        # 投票完重定向到 views.results(qid)
+        return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+
+
+# 通用模板示例，跟 def index类比着看。比较适合单调的增删改查。
+class SimpleView(generic.ListView):
+    template_name = 'polls/index.html'
+    context_object_name = 'question_list'
+
+    def get_queryset(self):
+        return Question.objects.all()
+
