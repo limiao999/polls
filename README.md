@@ -13,6 +13,6 @@ README
 - django==2.1.4
 - python==3.6.6
 
-`pip install django`
-`python manage.py migrate`
-`python manage.py runserver`
+1. `pip install django`
+2. `python manage.py migrate`
+3. `python manage.py runserver`
