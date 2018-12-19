@@ -11,7 +11,7 @@
 
   <ul>
     {% for q in question_list %}
-      <a href="/polls/{{ q.id }}">
+      <a href="{% url 'polls:detail' q.id %}">
         <li>问题：{{ q.question_text }}   发布时间：{{ q.pub_date }}</li>
       </a>
     {% endfor %}

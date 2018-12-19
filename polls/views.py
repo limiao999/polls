@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, Http404
 from django.template import loader
 from django.shortcuts import render
@@ -52,17 +52,28 @@ def detail(request, question_id):
     """
     try:
         question = Question.objects.get(id=question_id)
+        # 写法1（基本思想）choices = Choice.objects.filter(question_id=question.id)
+        # 由于orm代劳，question直接带出对应的choices
+        # 写法2 choices = question.choice_set.all()
+        # 由于前端模板语言本质是后端代码，可以把上句话放html页面中写，有助于降低后端复杂度。
     except Question.DoesNotExist:
         raise Http404("404，此id的问题不存在")
     print(question)
     context = {
-        'question': question
+        'question': question,
     }
 
+    # 写法2
     # question = Question.objects.filter(id=question_id)
     # if not question:
     #     raise Http404()
+    # 写法3
+    # question = get_object_or_404(Question, id=question_id)
+    # print(question)
+    # return render(request, 'polls/detail.html', {'question': question})
     return render(request, 'polls/detail.html', context)
+
+
 
 def results(request, question_id):
     """
